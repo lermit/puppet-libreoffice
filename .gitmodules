@@ -1,0 +1,12 @@
+[submodule "files/rodjek-libreoffice-puppet"]
+	path = files/rodjek-libreoffice-puppet
+	url = https://github.com/rodjek/libreoffice-puppet
+[submodule "files/syntastic"]
+	path = files/syntastic
+	url = https://github.com/scrooloose/syntastic.git
+[submodule "files/tpope-libreoffice-rails"]
+	path = files/tpope-libreoffice-rails
+	url = git://github.com/tpope/libreoffice-rails.git
+[submodule "files/tpope-libreoffice-fugitive"]
+	path = files/tpope-libreoffice-fugitive
+	url = git://github.com/tpope/libreoffice-fugitive.git
