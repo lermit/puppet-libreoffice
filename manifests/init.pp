@@ -75,7 +75,8 @@ class libreoffice (
     default => $url,
   }
 
-  $package_destination = "/var/tmp/libreoffice_${libreoffice::version}.tgz"
+  $package_destination_base = '/var/tmp'
+  $package_destination = "${libreoffice::package_destination_base}/libreoffice_${libreoffice::version}.tgz"
 
   if $bool_absent {
     file{ 'libreoffice_package':
@@ -88,15 +89,38 @@ class libreoffice (
       source      => $real_url,
       destination => $package_destination,
     }
+    $deb_path = "${libreoffice::package_destination_base}/LibO_${libreoffice::version}rc2_Linux_x86-64_install-deb_en-US/DEBS"
+    exec { 'lo_extract':
+      command => "tar xf ${libreoffice::package_destination}",
+      cwd     => $libreoffice::package_destination_base,
+      path    => [ '/bin', '/usr/bin', '/sbin', '/usr/sbin' ],
+      require => Wget::Fetch["libreoffice_${libreoffice::version}"],
+      creates => $deb_path,
+    }
+    # TODO: Rename folder
+    package { 'libreoffice-deps':
+      name => 'libfontconfig1',
+    }
+    package { 'libpng12-0': }
+    package { 'libxrender1': }
+    package { 'libsm6': }
+    package { 'libxinerama1': }
+    exec { 'lo_install':
+      command => "dpkg -i $deb_path/*.deb",
+      cwd     => $deb_path,
+      path    => [ '/bin', '/usr/bin', '/sbin', '/usr/sbin' ],
+      require => [Exec[ 'lo_extract' ],Package['libreoffice-deps']],
+      creates => '/opt/libreoffice3.5/',
+    }
   }
 
   ### Resources managed by the module
-  package { 'libreoffice':
-    ensure   => $libreoffice::manage_package,
-    provider => 'dpkg',
-    source   => $package_destination,
-    require  => Wget::Fetch[ "libreoffice_${libreoffice::version}" ]
-  }
+#  package { 'libreoffice':
+#    ensure   => $libreoffice::manage_package,
+#    provider => 'dpkg',
+#    source   => $package_destination,
+#    require  => Wget::Fetch[ "libreoffice_${libreoffice::version}" ]
+#  }
 
   ### Include custom class if $my_class is set
   if $libreoffice::my_class {
